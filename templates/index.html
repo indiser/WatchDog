@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WatchDog</title>
+    <meta name="description" content="WatchDog keeps your services alive. Monitor URLs, prevent cold starts, and stay informed with real-time uptime tracking.">
+
+    <!-- TailwindCSS v3 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+                    },
+                    colors: {
+                        canvas: '#0a0e17',
+                        panel: {
+                            DEFAULT: 'rgba(15, 23, 42, 0.6)',
+                            solid: '#0f172a',
+                        },
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- HTMX + Idiomorph (smooth DOM morphing, no flicker) -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dot-grid-bg min-h-screen font-display text-slate-300 overflow-x-hidden">
+
+    <!-- ============================================ -->
+    <!-- AMBIENT TOP GLOW                             -->
+    <!-- ============================================ -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER                               -->
+    <!-- ============================================ -->
+    <div class="relative max-w-4xl mx-auto px-5 py-10 sm:py-16">
+
+        <!-- ======================================== -->
+        <!-- HEADER                                   -->
+        <!-- ======================================== -->
+        <header class="mb-12 animate-fade-in-up delay-1">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full status-dot-active"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white tracking-tight">Watch<span class="gradient-text">Dog</span></h1>
+                        <p class="text-xs text-slate-500 tracking-wide">UPTIME MONITOR</p>
+                    </div>
+                </div>
+
+                <!-- Live Stats -->
+                <div id="stats-bar" class="flex items-center gap-5"
+                    hx-get="/stats"
+                    hx-trigger="every 10s"
+                    hx-swap="morph:innerHTML"
+                    hx-ext="morph"
+                >
+                    {% include '_stats_bar.html' %}
+                </div>
+            </div>
+        </header>
+
+        <!-- ======================================== -->
+        <!-- ADD TARGET CARD                          -->
+        <!-- ======================================== -->
+        <section class="mb-8 animate-fade-in-up delay-2">
+            <div class="glow-border rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm card-inner-shadow p-6">
+                <div class="flex items-center gap-2 mb-5">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Add Target</h2>
+                </div>
+
+                <form action="/add_target_ui" method="POST" class="flex flex-col sm:flex-row gap-3" id="add-target-form">
+                    <div class="flex-1 relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/><path d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                        </div>
+                        <input
+                            type="url"
+                            name="url"
+                            placeholder="https://your-service.onrender.com"
+                            required
+                            id="url-input"
+                            class="input-glow w-full pl-10 pr-4 py-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-sm font-mono text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/40 transition-all duration-200"
+                        >
+                    </div>
+                    <div class="relative">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <input
+                            type="number"
+                            name="interval_minutes"
+                            placeholder="5"
+                            value="5"
+                            min="1"
+                            required
+                            id="interval-input"
+                            class="input-glow w-full sm:w-32 pl-10 pr-4 py-3 rounded-lg bg-slate-800/60 border border-slate-700/60 text-sm font-mono text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/40 transition-all duration-200"
+                        >
+                    </div>
+                    <button
+                        type="submit"
+                        id="submit-btn"
+                        class="btn-press inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all duration-200"
+                    >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                        Monitor
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- TARGETS TABLE                            -->
+        <!-- ======================================== -->
+        <section class="animate-fade-in-up delay-3">
+            <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm card-inner-shadow overflow-hidden">
+                <!-- Section Header -->
+                <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800/80">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Monitored Targets</h2>
+                    </div>
+                </div>
+
+                <!-- Desktop Table (hidden on mobile) -->
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full" id="targets-table">
+                        <thead>
+                            <tr class="border-b border-slate-800/60">
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest">ID</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest">URL</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Interval</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Status</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Last Ping</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-24"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="target-rows"
+                            hx-get="/targets_partial"
+                            hx-trigger="every 5s"
+                            hx-swap="morph:innerHTML"
+                            hx-ext="morph"
+                        >
+                            {% include '_targets_table_body.html' %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card List (hidden on desktop) -->
+                <div class="md:hidden divide-y divide-slate-800/60" id="target-cards"
+                    hx-get="/targets_partial_mobile"
+                    hx-trigger="every 5s"
+                    hx-swap="morph:innerHTML"
+                    hx-ext="morph"
+                >
+                    {% for target in targets %}
+                    {% include '_target_card_mobile.html' %}
+                    {% else %}
+                    <div class="px-4 py-12 text-center">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="float-animation">
+                                <svg class="w-10 h-10 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    <path d="M9 10h.01M15 10h.01M9.5 15.5a3.5 3.5 0 005 0"/>
+                                </svg>
+                            </div>
+                            <p class="text-slate-600 text-sm">No targets being monitored</p>
+                            <p class="text-slate-700 text-xs">Add a URL above to start watching</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- FOOTER                                   -->
+        <!-- ======================================== -->
+        <footer class="mt-12 text-center animate-fade-in-up delay-5">
+            <div class="flex items-center justify-center gap-2 text-xs text-slate-700">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Powered by Flask · Celery · Redis</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCRIPTS                                      -->
+    <!-- ============================================ -->
+    <script>
+        // Copy URL to clipboard with icon feedback
+        function copyUrl(btn, url) {
+            navigator.clipboard.writeText(url).then(function() {
+                var copyIcon = btn.querySelector('.copy-icon');
+                var checkIcon = btn.querySelector('.check-icon');
+                if (copyIcon && checkIcon) {
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+                    btn.classList.add('text-emerald-400');
+                    setTimeout(function() {
+                        copyIcon.classList.remove('hidden');
+                        checkIcon.classList.add('hidden');
+                        btn.classList.remove('text-emerald-400');
+                    }, 1500);
+                }
+            });
+        }
+
+        // HTMX event listener — flash effect on toggle/delete swaps
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target && evt.detail.target.tagName === 'TR') {
+                evt.detail.target.style.transition = 'background-color 0.6s ease';
+                evt.detail.target.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+                setTimeout(() => {
+                    evt.detail.target.style.backgroundColor = '';
+                }, 600);
+            }
+        });
+    </script>
+
+</body>
+</html>

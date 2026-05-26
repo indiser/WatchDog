@@ -1,0 +1,16 @@
+<div class="flex items-center gap-3 text-xs">
+    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/50 border border-slate-700/40">
+        <span class="text-slate-500">Targets</span>
+        <span class="font-mono font-semibold text-white">{{ total_targets }}</span>
+    </div>
+    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/50 border border-slate-700/40">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span class="font-mono font-semibold text-emerald-400">{{ active_count }}</span>
+    </div>
+    {% if paused_count > 0 %}
+    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/50 border border-slate-700/40">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        <span class="font-mono font-semibold text-amber-400">{{ paused_count }}</span>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,8 @@
+redis
+celery
+Flask
+psycopg2-binary
+Flask-SQLAlchemy
+curl_cffi
+requests
+python-dotenv
