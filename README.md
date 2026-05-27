@@ -214,7 +214,7 @@ Docker Compose 3.8 # Multi-container orchestration
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/WatchDog.git
+git clone https://github.com/indiser/WatchDog.git
 cd WatchDog
 
 # Create environment file
