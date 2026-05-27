@@ -16,6 +16,8 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - DATABASE_URL=${DATABASE_URL}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASS=${ADMIN_PASS}
     depends_on:
       - redis
 
