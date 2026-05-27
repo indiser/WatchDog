@@ -28,8 +28,8 @@ with app.app_context():
 
 def check_auth(username, password):
     """Check if a username/password combination is valid."""
-    admin_user = os.environ.get('ADMIN_USER', 'admin')
-    admin_pass = os.environ.get('ADMIN_PASS', 'super_secret_default')
+    admin_user = os.environ.get('ADMIN_USER')
+    admin_pass = os.environ.get('ADMIN_PASS')
     return username == admin_user and password == admin_pass
 
 def authenticate():
