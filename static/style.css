@@ -1,0 +1,182 @@
+/* ============================================================
+   WatchDog — Custom Styles
+   Complements TailwindCSS for effects Tailwind can't do alone.
+   ============================================================ */
+
+/* --- Dot-grid background pattern --- */
+.dot-grid-bg {
+  background-color: #0a0e17;
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* --- Keyframe: Breathing pulse for active status dots --- */
+@keyframes pulse-dot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 8px 4px rgba(16, 185, 129, 0.15);
+    transform: scale(1.15);
+  }
+}
+
+.status-dot-active {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* --- Keyframe: Staggered fade-in-up entry --- */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Staggered delays for cascading load */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* --- Keyframe: Subtle glow on card borders --- */
+@keyframes border-glow {
+  0%, 100% {
+    border-color: rgba(16, 185, 129, 0.15);
+  }
+  50% {
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+}
+
+.glow-border {
+  animation: border-glow 4s ease-in-out infinite;
+}
+
+/* --- HTMX transition classes --- */
+.htmx-swapping {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.htmx-added {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+.htmx-settling {
+  transition: opacity 0.3s ease-in;
+}
+
+/* Row removal animation */
+tr.htmx-swapping {
+  transform: translateX(20px);
+  opacity: 0;
+  transition: all 0.3s ease-out;
+}
+
+/* --- Custom scrollbar (dark theme) --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1629;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b #0f1629;
+}
+
+/* --- Input glow on focus --- */
+.input-glow:focus {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), 0 0 16px rgba(16, 185, 129, 0.08);
+}
+
+/* --- Table row hover lift --- */
+.row-hover {
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.row-hover:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+/* --- Button press effect --- */
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* --- Stat counter shimmer --- */
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.stat-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* --- Toast / flash notification --- */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-enter {
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+/* --- Empty state illustration pulse --- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* --- Gradient text for branding --- */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Card subtle inner shadow --- */
+.card-inner-shadow {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
